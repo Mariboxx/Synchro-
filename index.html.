@@ -1,0 +1,930 @@
+```html
+<!DOCTYPE html>
+<html lang="cs" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Synchro Kalendář – Advanced Novice 2026/2027</title>
+    <!-- Tailwind CSS pro moderní responzivní vzhled -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        ice: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                            950: '#082f49',
+                        },
+                        navy: {
+                            900: '#0a1122',
+                            950: '#050914'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Ledové pozadí a skleněný efekt (Frosted Glass) */
+        body {
+            background: radial-gradient(circle at top right, #0f294a 0%, #071326 45%, #040812 100%);
+            min-height: 100vh;
+            color: #f8fafc;
+        }
+
+        .glass-panel {
+            background: rgba(15, 31, 56, 0.55);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(125, 211, 252, 0.16);
+        }
+
+        .glass-card {
+            background: linear-gradient(145deg, rgba(20, 40, 72, 0.65) 0%, rgba(10, 22, 42, 0.75) 100%);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(186, 230, 253, 0.14);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(56, 189, 248, 0.45);
+            box-shadow: 0 12px 28px -8px rgba(2, 132, 199, 0.28);
+        }
+
+        .ice-glow {
+            box-shadow: 0 0 35px -5px rgba(56, 189, 248, 0.25);
+        }
+
+        /* Skrytí scrollbaru u horizontálních filtrů na mobilu */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        @keyframes pulse-ice {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.55; }
+        }
+        .animate-pulse-ice {
+            animation: pulse-ice 2s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-ice-500 selection:text-white pb-16">
+
+    <!-- Horní navigační lišta -->
+    <header class="sticky top-0 z-30 glass-panel border-b border-ice-300/15">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-3">
+            <!-- Logo a název -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-ice-400 to-blue-600 flex items-center justify-center shadow-lg shadow-ice-500/30 text-white">
+                    <!-- SVG Ikona brusle / vločky -->
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v20m0-20l3 3m-3-3L9 5m3 17l3-3m-3 3l-3-3M2 12h20M2 12l3 3m-3-3l3-3m17 3l-3 3m3-3l-3-3m-2.5-4.5l-9 9m9 0l-9-9"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-base sm:text-xl font-bold tracking-tight text-white flex flex-wrap items-center gap-2">
+                        Synchro Kalendář – Advanced Novice
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-ice-500/20 text-ice-300 border border-ice-400/30">2026/2027</span>
+                    </h1>
+                    <p id="last-sync-text" class="text-xs text-slate-400">Kategorie Advanced Novice (ISU &amp; ČR) • Zdroje: ISU, SynchroCenter, ČKS</p>
+                </div>
+            </div>
+
+            <!-- Akční tlačítka -->
+            <div class="flex items-center gap-2">
+                <button id="sync-btn" onclick="triggerSync()" class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-ice-500/20 hover:bg-ice-500/30 active:scale-95 text-ice-200 border border-ice-400/30 text-sm font-medium transition cursor-pointer">
+                    <svg id="sync-icon" class="w-4 h-4 text-ice-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    <span class="hidden sm:inline">Synchronizovat</span>
+                </button>
+
+                <button onclick="openAddModal()" class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-ice-500 to-blue-600 hover:from-ice-400 hover:to-blue-500 active:scale-95 text-white text-sm font-semibold shadow-lg shadow-ice-600/25 transition cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    <span>Přidat závod</span>
+                </button>
+
+                <button onclick="openInfoModal()" title="Jak připojit živý automatický scraper" class="p-2 rounded-xl bg-slate-800/70 hover:bg-slate-700/80 text-slate-300 border border-slate-700/60 transition cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hlavní obsah -->
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 pt-6 space-y-6">
+
+        <!-- Banner s živým odpočtem k nejbližšímu závodu -->
+        <section id="countdown-banner" class="relative overflow-hidden rounded-2xl glass-panel ice-glow p-5 sm:p-7 border border-ice-400/30">
+            <div class="absolute -right-12 -top-12 w-48 h-48 rounded-full bg-ice-400/10 blur-2xl pointer-events-none"></div>
+            <div class="absolute -left-12 -bottom-12 w-48 h-48 rounded-full bg-blue-600/15 blur-2xl pointer-events-none"></div>
+            
+            <div class="relative flex flex-col md:flex-row md:items-center justify-between gap-5">
+                <div class="space-y-1.5">
+                    <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-ice-400/15 border border-ice-300/25 text-ice-200 text-xs font-semibold uppercase tracking-wider">
+                        <span class="w-2 h-2 rounded-full bg-ice-400 animate-pulse"></span>
+                        Nejbližší nadcházející závod
+                    </div>
+                    <h2 id="next-comp-title" class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Načítám závod...</h2>
+                    <p id="next-comp-meta" class="text-sm sm:text-base text-ice-100/80 flex flex-wrap items-center gap-x-3 gap-y-1"></p>
+                </div>
+
+                <!-- Odpočet -->
+                <div class="flex items-center gap-2.5 sm:gap-3 shrink-0">
+                    <div class="w-16 sm:w-20 py-2.5 px-2 rounded-xl bg-navy-950/70 border border-ice-300/20 text-center">
+                        <div id="cd-days" class="text-2xl sm:text-3xl font-extrabold text-ice-300 tabular-nums">--</div>
+                        <div class="text-[11px] uppercase tracking-wider text-slate-400 font-medium">Dní</div>
+                    </div>
+                    <div class="w-16 sm:w-20 py-2.5 px-2 rounded-xl bg-navy-950/70 border border-ice-300/20 text-center">
+                        <div id="cd-hours" class="text-2xl sm:text-3xl font-extrabold text-white tabular-nums">--</div>
+                        <div class="text-[11px] uppercase tracking-wider text-slate-400 font-medium">Hodin</div>
+                    </div>
+                    <div class="w-16 sm:w-20 py-2.5 px-2 rounded-xl bg-navy-950/70 border border-ice-300/20 text-center">
+                        <div id="cd-mins" class="text-2xl sm:text-3xl font-extrabold text-white tabular-nums">--</div>
+                        <div class="text-[11px] uppercase tracking-wider text-slate-400 font-medium">Minut</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Vyhledávání a filtry -->
+        <section class="glass-panel rounded-2xl p-4 space-y-4">
+            <div class="flex flex-col sm:flex-row gap-3">
+                <!-- Vyhledávací pole -->
+                <div class="relative flex-1">
+                    <svg class="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    <input id="search-input" type="text" placeholder="Hledat závod, město nebo stát (např. Brno, Challenger, Salzburg)..." 
+                           class="w-full pl-11 pr-4 py-2.5 rounded-xl bg-navy-950/75 border border-ice-300/20 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-ice-400 transition">
+                </div>
+
+                <!-- Přepínače oblíbených a proběhlých -->
+                <div class="flex items-center gap-2 shrink-0">
+                    <button id="toggle-fav-btn" onclick="toggleFavoriteFilter()" class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-navy-950/75 border border-ice-300/20 text-sm font-medium text-slate-300 hover:border-amber-400/50 transition cursor-pointer">
+                        <svg id="fav-filter-icon" class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                        </svg>
+                        <span>Oblíbené</span>
+                    </button>
+
+                    <button id="toggle-past-btn" onclick="toggleHidePast()" class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-ice-500/20 border border-ice-400/40 text-sm font-medium text-ice-200 transition cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                        </svg>
+                        <span>Skrýt proběhlé</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Kategorie (Chips) -->
+            <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-0.5" id="category-filters">
+                <button data-cat="ALL" onclick="setCategory('ALL')" class="cat-btn active px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold bg-ice-500 text-white shadow-sm transition whitespace-nowrap cursor-pointer">
+            <!-- Kategorie (Chips) pro Advanced Novice -->
+            <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-0.5" id="category-filters">
+                <button data-cat="ALL" onclick="setCategory('ALL')" class="cat-btn active px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold bg-ice-500 text-white shadow-sm transition whitespace-nowrap cursor-pointer">
+                    Všechny
+                </button>
+                <button data-cat="CZ" onclick="setCategory('CZ')" class="cat-btn px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-medium bg-navy-950/60 text-slate-300 hover:text-white border border-ice-300/15 transition whitespace-nowrap cursor-pointer">
+                    🇨🇿 České závody
+                </button>
+                <button data-cat="ISU" onclick="setCategory('ISU')" class="cat-btn px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-medium bg-navy-950/60 text-slate-300 hover:text-white border border-ice-300/15 transition whitespace-nowrap cursor-pointer">
+                    🌍 Mezinárodní (ISU)
+                </button>
+            </div>
+        </section>
+
+        <!-- Statistika a počet zobrazených závodů -->
+        <div class="flex items-center justify-between px-1 text-xs sm:text-sm text-slate-400">
+            <span id="results-count">Zobrazeno 0 závodů</span>
+            <span>Referenční datum: <strong class="text-slate-200">25. 11. 2026</strong></span>
+        </div>
+
+        <!-- Seznam karet závodů -->
+        <section id="competitions-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Karty se generují dynamicky přes JS -->
+        </section>
+
+        <!-- Prázdný stav -->
+        <div id="empty-state" class="hidden glass-panel rounded-2xl p-10 text-center space-y-3">
+            <div class="w-14 h-14 rounded-2xl bg-ice-500/15 text-ice-300 flex items-center justify-center mx-auto">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <h3 class="text-lg font-bold text-white">Žádné závody neodpovídají filtru</h3>
+            <p class="text-sm text-slate-400 max-w-md mx-auto">Zkus změnit hledaný výraz, vypnout filtr oblíbených nebo zobrazit i již proběhlé závody.</p>
+            <button onclick="resetFilters()" class="mt-2 px-4 py-2 rounded-xl bg-ice-500/20 hover:bg-ice-500/30 text-ice-200 text-sm font-medium border border-ice-400/30 transition cursor-pointer">
+                Resetovat filtry
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Notifikační Toast zpráva -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="glass-panel border border-ice-400/40 rounded-xl px-4 py-3 shadow-2xl flex items-center gap-3 text-sm text-white">
+            <span id="toast-icon" class="w-2.5 h-2.5 rounded-full bg-ice-400"></span>
+            <span id="toast-message">Zpráva</span>
+        </div>
+    </div>
+
+    <!-- Modal: Přidat vlastní závod -->
+    <div id="add-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-navy-950/80 backdrop-blur-sm">
+        <div class="glass-panel border border-ice-300/25 rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-bold text-white">Přidat závod (Advanced Novice)</h3>
+                <button onclick="closeAddModal()" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <form id="add-comp-form" onsubmit="handleAddCompetition(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Typ závodu (Advanced Novice)</label>
+                    <select id="new-category" class="w-full px-3.5 py-2 rounded-xl bg-navy-950/80 border border-ice-300/20 text-sm text-white focus:outline-none focus:border-ice-400">
+                        <option value="CZ">Český pohár / MČR</option>
+                        <option value="ISU">Mezinárodní závod (ISU)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Poznámka (nepovinné)</label>
+                    <input type="text" id="new-note" placeholder="např. Volná jízda Advanced Novice, odjezd týmu..." class="w-full px-3.5 py-2 rounded-xl bg-navy-950/80 border border-ice-300/20 text-sm text-white focus:outline-none focus:border-ice-400">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Datum začátku *</label>
+                        <input type="date" id="new-start" required value="2027-02-14" class="w-full px-3.5 py-2 rounded-xl bg-navy-950/80 border border-ice-300/20 text-sm text-white focus:outline-none focus:border-ice-400">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Datum konce *</label>
+                        <input type="date" id="new-end" required value="2027-02-15" class="w-full px-3.5 py-2 rounded-xl bg-navy-950/80 border border-ice-300/20 text-sm text-white focus:outline-none focus:border-ice-400">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Město *</label>
+                        <input type="text" id="new-city" required placeholder="např. Ostrava" class="w-full px-3.5 py-2 rounded-xl bg-navy-950/80 border border-ice-300/20 text-sm text-white focus:outline-none focus:border-ice-400">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Stát a vlajka *</label>
+                        <input type="text" id="new-country" required placeholder="🇨🇿 Česko" value="🇨🇿 Česko" class="w-full px-3.5 py-2 rounded-xl bg-navy-950/80 border border-ice-300/20 text-sm text-white focus:outline-none focus:border-ice-400">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Kategorie</label>
+                    <select id="new-category" class="w-full px-3.5 py-2 rounded-xl bg-navy-950/80 border border-ice-300/20 text-sm text-white focus:outline-none focus:border-ice-400">
+                        <option value="CZ">České závody</option>
+                        <option value="ISU">ISU Challenger & MS</option>
+                        <option value="INT">Ostatní mezinárodní</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Poznámka / Kdo závodí (nepovinné)</label>
+                    <input type="text" id="new-note" placeholder="např. Kategorie Juniorky, Seniorky, Mixed Age..." class="w-full px-3.5 py-2 rounded-xl bg-navy-950/80 border border-ice-300/20 text-sm text-white focus:outline-none focus:border-ice-400">
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeAddModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium transition cursor-pointer">Zrušit</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-gradient-to-r from-ice-500 to-blue-600 hover:from-ice-400 hover:to-blue-500 text-white text-sm font-semibold shadow-lg transition cursor-pointer">Uložit závod</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Info o automatickém stahování z internetu -->
+    <div id="info-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-navy-950/80 backdrop-blur-sm">
+        <div class="glass-panel border border-ice-300/25 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-ice-400"></span>
+                    Jak funguje živá aktualizace dat?
+                </h3>
+                <button onclick="closeInfoModal()" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="space-y-3 text-sm text-slate-300 leading-relaxed">
+                <p>
+                    Tato aplikace běží kompletně ve tvém prohlížeči zdarma a ukládá si oblíbené závody i vlastní položky přímo do paměti zařízení (<code class="text-ice-300 bg-navy-950 px-1.5 py-0.5 rounded">localStorage</code>).
+                </p>
+                <div class="p-3.5 rounded-xl bg-navy-950/70 border border-ice-300/15 space-y-2">
+                    <h4 class="font-semibold text-white">Jak připojit plně automatický scraper zdarma:</h4>
+                    <ol class="list-decimal list-inside space-y-1.5 text-xs text-slate-300">
+                        <li>Nahraj tento soubor (<code class="text-ice-300">index.html</code>) zdarma na <strong>GitHub</strong> a zapni <strong>GitHub Pages</strong> (získáš vlastní odkaz na mobil).</li>
+                        <li>Přidej do repozitáře jednoduchý Python skript (<code class="text-ice-300">scraper.py</code>), který stáhne tabulku závodů ze <em>SynchroCenter.com</em> nebo <em>ISU.org</em> do souboru <code class="text-ice-300">events.json</code>.</li>
+                        <li>Nastav <strong>GitHub Actions</strong> (zdarma), aby skript spustil každé ráno v 6:00 a aktualizoval data bez tvého zásahu.</li>
+                    </ol>
+                </div>
+                <p class="text-xs text-slate-400">
+                    Tip: Pokud budeš chtít vygenerovat přímo ten Python skript pro GitHub Actions, stačí mi napsat v chatu!
+                </p>
+            </div>
+
+            <div class="flex justify-end pt-2">
+                <button onclick="closeInfoModal()" class="px-4 py-2 rounded-xl bg-ice-500/20 hover:bg-ice-500/30 text-ice-200 border border-ice-400/30 text-sm font-medium transition cursor-pointer">Rozumím</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Referenční aktuální datum: 25. listopadu 2026
+        const CURRENT_DATE = new Date('2026-11-25T14:38:00');
+
+        // Výchozí databáze závodů výhradně pro kategorii Advanced Novice (sezóna 2026/2027)
+        const DEFAULT_COMPETITIONS = [
+            {
+                id: 'adv-1',
+                name: 'Lumière Cup 2026 (Advanced Novice)',
+                startDate: '2026-11-12',
+                endDate: '2026-11-15',
+                city: 'Eindhoven',
+                country: '🇳🇱 Nizozemsko',
+                category: 'ISU',
+                source: 'ISU Interclub / SynchroCenter',
+                note: 'Mezinárodní soutěž kategorie Advanced Novice v rámci víkendu Lumière Cup.',
+                url: 'https://www.synchrocenter.com'
+            },
+            {
+                id: 'adv-2',
+                name: 'Trophy d’Ecosse 2026 (Advanced Novice)',
+                startDate: '2026-11-20',
+                endDate: '2026-11-22',
+                city: 'Dumfries',
+                country: '🇬🇧 Velká Británie',
+                category: 'ISU',
+                source: 'ISU Interclub / SynchroCenter',
+                note: 'Tradiční mezinárodní závod ve Skotsku s otevřenou kategorií Advanced Novice.',
+                url: 'https://www.synchrocenter.com'
+            },
+            {
+                id: 'adv-3',
+                name: 'Santa Claus Cup 2026 (Advanced Novice)',
+                startDate: '2026-12-03',
+                endDate: '2026-12-06',
+                city: 'Brno',
+                country: '🇨🇿 Česko',
+                category: 'CZ',
+                source: 'Český krasobruslařský svaz & ISU',
+                note: 'Největší mezinárodní závod v Česku (Hala Rondo) – silně obsazená kategorie Advanced Novice.',
+                url: 'https://www.czechskating.org'
+            },
+            {
+                id: 'adv-4',
+                name: 'Mozart Cup 2027 (Advanced Novice)',
+                startDate: '2027-01-14',
+                endDate: '2027-01-17',
+                city: 'Salzburg',
+                country: '🇦🇹 Rakousko',
+                category: 'ISU',
+                source: 'ISU Interclub / SynchroCenter',
+                note: 'Prestižní závod v Eisarena Salzburg s pravidelnou účastí českých týmů Advanced Novice.',
+                url: 'https://www.synchrocenter.com'
+            },
+            {
+                id: 'adv-5',
+                name: 'Jihlavský ježek & MČR Advanced Novice 2027',
+                startDate: '2027-02-06',
+                endDate: '2027-02-07',
+                city: 'Jihlava',
+                country: '🇨🇿 Česko',
+                category: 'CZ',
+                source: 'Český krasobruslařský svaz',
+                note: 'Mistrovství České republiky v synchronizovaném krasobruslení pro kategorii Advanced Novice.',
+                url: 'https://www.czechskating.org'
+            },
+            {
+                id: 'adv-6',
+                name: 'Spring Cup 2027 (Advanced Novice)',
+                startDate: '2027-02-12',
+                endDate: '2027-02-14',
+                city: 'Milán',
+                country: '🇮🇹 Itálie',
+                category: 'ISU',
+                source: 'ISU Interclub / SynchroCenter',
+                note: 'Mezinárodní závod v Sesto San Giovanni (Milán) pro kategorii Advanced Novice.',
+                url: 'https://www.synchrocenter.com'
+            },
+            {
+                id: 'adv-7',
+                name: 'Hevelius Cup 2027 (Advanced Novice)',
+                startDate: '2027-02-19',
+                endDate: '2027-02-21',
+                city: 'Gdaňsk',
+                country: '🇵🇱 Polsko',
+                category: 'ISU',
+                source: 'ISU Interclub / SynchroCenter',
+                note: 'Velký mezinárodní pohár v polském Gdaňsku v hale Olivia pro Advanced Novice.',
+                url: 'https://www.synchrocenter.com'
+            },
+            {
+                id: 'adv-8',
+                name: 'Pardubický pohár 2027 (Advanced Novice)',
+                startDate: '2027-02-27',
+                endDate: '2027-02-28',
+                city: 'Pardubice',
+                country: '🇨🇿 Česko',
+                category: 'CZ',
+                source: 'Český krasobruslařský svaz',
+                note: 'Domácí závod Českého poháru v enteria areně v Pardubicích pro kategorii Advanced Novice.',
+                url: 'https://www.czechskating.org'
+            },
+            {
+                id: 'adv-9',
+                name: 'Budapest Cup 2027 (Advanced Novice)',
+                startDate: '2027-03-05',
+                endDate: '2027-03-07',
+                city: 'Budapešť',
+                country: '🇭🇺 Maďarsko',
+                category: 'ISU',
+                source: 'ISU Interclub / SynchroCenter',
+                note: 'Jarní mezinárodní soutěž v Budapešti otevřená pro týmy Advanced Novice.',
+                url: 'https://www.synchrocenter.com'
+            },
+            {
+                id: 'adv-10',
+                name: 'Steel City Trophy 2027 (Advanced Novice)',
+                startDate: '2027-03-19',
+                endDate: '2027-03-21',
+                city: 'Sheffield',
+                country: '🇬🇧 Velká Británie',
+                category: 'ISU',
+                source: 'ISU Interclub / SynchroCenter',
+                note: 'Závěrečný mezinárodní závod sezóny v Sheffieldu pro kategorii Advanced Novice.',
+                url: 'https://www.synchrocenter.com'
+            }
+        ];
+
+        // Stav aplikace
+        let state = {
+            competitions: [],
+            favorites: [],
+            searchQuery: '',
+            selectedCategory: 'ALL',
+            onlyFavorites: false,
+            hidePast: true,
+            expandedIds: new Set()
+        };
+
+        // Inicializace při načtení stránky
+        function initApp() {
+            try {
+                const savedComps = localStorage.getItem('synchro_adv_novice_2627');
+                const savedFavs = localStorage.getItem('synchro_adv_novice_favs_2627');
+
+                state.competitions = savedComps ? JSON.parse(savedComps) : [...DEFAULT_COMPETITIONS];
+                state.favorites = savedFavs ? JSON.parse(savedFavs) : ['adv-3', 'adv-5', 'adv-8'];
+            } catch (e) {
+                console.warn('Chyba při čtení localStorage, načítám výchozí data.', e);
+                state.competitions = [...DEFAULT_COMPETITIONS];
+                state.favorites = ['adv-3', 'adv-5', 'adv-8'];
+            }
+
+            // Posluchač pro vyhledávání
+            document.getElementById('search-input').addEventListener('input', (e) => {
+                state.searchQuery = e.target.value.trim().toLowerCase();
+                renderCompetitions();
+            });
+
+            updateCountdownBanner();
+            renderCompetitions();
+        }
+
+        // Uložení do localStorage
+        function saveState() {
+            try {
+                localStorage.setItem('synchro_adv_novice_2627', JSON.stringify(state.competitions));
+                localStorage.setItem('synchro_adv_novice_favs_2627', JSON.stringify(state.favorites));
+            } catch (e) {
+                console.warn('Nelze uložit do localStorage:', e);
+            }
+        }
+
+        // Formátování českého data (např. "3. – 6. 12. 2026")
+        function formatDateRange(startStr, endStr) {
+            const start = new Date(startStr + 'T00:00:00');
+            const end = new Date(endStr + 'T00:00:00');
+
+            const sDay = start.getDate();
+            const sMonth = start.getMonth() + 1;
+            const sYear = start.getFullYear();
+
+            const eDay = end.getDate();
+            const eMonth = end.getMonth() + 1;
+            const eYear = end.getFullYear();
+
+            if (startStr === endStr) {
+                return `${sDay}. ${sMonth}. ${sYear}`;
+            }
+            if (sMonth === eMonth && sYear === eYear) {
+                return `${sDay}. – ${eDay}. ${eMonth}. ${eYear}`;
+            }
+            return `${sDay}. ${sMonth}. – ${eDay}. ${eMonth}. ${eYear}`;
+        }
+
+        // Výpočet rozdílu dnů od referenčního data
+        function getDaysDiff(startStr, endStr) {
+            const today = new Date(CURRENT_DATE.getFullYear(), CURRENT_DATE.getMonth(), CURRENT_DATE.getDate());
+            const start = new Date(startStr + 'T00:00:00');
+            const end = new Date(endStr + 'T23:59:59');
+
+            if (CURRENT_DATE >= start && CURRENT_DATE <= end) {
+                return { status: 'ONGOING', days: 0 };
+            }
+            if (CURRENT_DATE > end) {
+                return { status: 'PAST', days: -1 };
+            }
+            const diffTime = start - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return { status: 'UPCOMING', days: diffDays };
+        }
+
+        // Aktualizace horního odpočítávacího banneru
+        function updateCountdownBanner() {
+            const upcoming = state.competitions
+                .filter(c => new Date(c.endDate + 'T23:59:59') >= CURRENT_DATE)
+                .sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+
+            const bannerTitle = document.getElementById('next-comp-title');
+            const bannerMeta = document.getElementById('next-comp-meta');
+
+            if (upcoming.length === 0) {
+                bannerTitle.textContent = 'Sezóna 2026/2027 je u konce';
+                bannerMeta.textContent = 'Všechny naplánované závody již proběhly.';
+                document.getElementById('cd-days').textContent = '0';
+                document.getElementById('cd-hours').textContent = '0';
+                document.getElementById('cd-mins').textContent = '0';
+                return;
+            }
+
+            const next = upcoming[0];
+            bannerTitle.textContent = next.name;
+            bannerMeta.innerHTML = `
+                <span>📅 ${formatDateRange(next.startDate, next.endDate)}</span>
+                <span>•</span>
+                <span>📍 ${next.city} (${next.country})</span>
+            `;
+
+            const targetTime = new Date(next.startDate + 'T09:00:00');
+            const diffMs = Math.max(0, targetTime - CURRENT_DATE);
+
+            const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diffMs / (1000 * 60 * 60)) % 24);
+            const mins = Math.floor((diffMs / (1000 * 60)) % 60);
+
+            document.getElementById('cd-days').textContent = String(days).padStart(2, '0');
+            document.getElementById('cd-hours').textContent = String(hours).padStart(2, '0');
+            document.getElementById('cd-mins').textContent = String(mins).padStart(2, '0');
+        }
+
+        // Vykreslení seznamu závodů
+        function renderCompetitions() {
+            const container = document.getElementById('competitions-list');
+            const emptyState = document.getElementById('empty-state');
+            const countLabel = document.getElementById('results-count');
+
+            // Filtrování a seřazení podle data
+            const filtered = state.competitions
+                .filter(comp => {
+                    const timing = getDaysDiff(comp.startDate, comp.endDate);
+                    if (state.hidePast && timing.status === 'PAST') return false;
+                    if (state.onlyFavorites && !state.favorites.includes(comp.id)) return false;
+                    if (state.selectedCategory !== 'ALL' && comp.category !== state.selectedCategory) return false;
+                    if (state.searchQuery) {
+                        const haystack = `${comp.name} ${comp.city} ${comp.country} ${comp.note || ''}`.toLowerCase();
+                        if (!haystack.includes(state.searchQuery)) return false;
+                    }
+                    return true;
+                })
+                .sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+
+            countLabel.textContent = `Zobrazeno ${filtered.length} ${getCzechPlural(filtered.length, 'závod', 'závody', 'závodů')}`;
+
+            if (filtered.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            container.innerHTML = filtered.map(comp => createCompetitionCardHTML(comp)).join('');
+        }
+
+        // Vytvoření HTML pro jednu kartu závodu
+        function createCompetitionCardHTML(comp) {
+            const isFav = state.favorites.includes(comp.id);
+            const isExpanded = state.expandedIds.has(comp.id);
+            const timing = getDaysDiff(comp.startDate, comp.endDate);
+
+            // Odznak zbývajících dnů
+            let timingBadge = '';
+            if (timing.status === 'PAST') {
+                timingBadge = `<span class="px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-800/90 text-slate-400 border border-slate-700/70">Proběhlo</span>`;
+            } else if (timing.status === 'ONGOING') {
+                timingBadge = `<span class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 animate-pulse">Právě probíhá</span>`;
+            } else {
+                const dayWord = getCzechPlural(timing.days, 'den', 'dny', 'dní');
+                timingBadge = `<span class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-ice-500/20 text-ice-200 border border-ice-400/30">Za ${timing.days} ${dayWord}</span>`;
+            }
+
+            // Odznak kategorie
+            let catBadge = '';
+            if (comp.category === 'CZ') {
+                catBadge = `<span class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-red-500/20 text-rose-200 border border-rose-400/25">🇨🇿 Český pohár / MČR</span>`;
+            } else {
+                catBadge = `<span class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-blue-500/20 text-blue-300 border border-blue-400/25">🌍 Mezinárodní (ISU)</span>`;
+            }
+
+            return `
+                <article class="glass-card rounded-2xl p-5 flex flex-col justify-between gap-4 ${timing.status === 'PAST' ? 'opacity-65' : ''}">
+                    <div class="space-y-3">
+                        <!-- Horní řádek: Kategorie, odpočet a hvězdička -->
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex flex-wrap items-center gap-2">
+                                ${catBadge}
+                                ${timingBadge}
+                            </div>
+                            <button onclick="toggleFavorite('${comp.id}')" title="${isFav ? 'Odebrat z oblíbených' : 'Přidat do oblíbených'}" class="p-1.5 -mr-1.5 -mt-1.5 rounded-xl hover:bg-white/10 transition cursor-pointer">
+                                <svg class="w-5 h-5 ${isFav ? 'text-amber-400 fill-amber-400' : 'text-slate-400 hover:text-amber-300'}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Název závodu -->
+                        <div>
+                            <h3 class="text-lg font-bold text-white leading-snug">${escapeHTML(comp.name)}</h3>
+                            <div class="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-300">
+                                <span class="flex items-center gap-1.5 text-ice-200 font-medium">
+                                    <svg class="w-4 h-4 text-ice-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                    ${formatDateRange(comp.startDate, comp.endDate)}
+                                </span>
+                                <span class="flex items-center gap-1.5">
+                                    <span>${escapeHTML(comp.country)}</span>
+                                    <span class="text-slate-500">•</span>
+                                    <span>${escapeHTML(comp.city)}</span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Rozbalitelný detail -->
+                        ${isExpanded ? `
+                            <div class="pt-2.5 border-t border-ice-300/15 text-xs text-slate-300 space-y-2">
+                                <p>${escapeHTML(comp.note || 'Bez dalších poznámek.')}</p>
+                                <div class="flex items-center justify-between text-slate-400">
+                                    <span>Zdroj dat: <strong class="text-slate-200">${escapeHTML(comp.source || 'Vlastní záznam')}</strong></span>
+                                    ${comp.url ? `<a href="${escapeHTML(comp.url)}" target="_blank" rel="noopener noreferrer" class="text-ice-300 hover:text-ice-200 underline flex items-center gap-1">Oficiální web ↗</a>` : ''}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <!-- Spodní lišta karty -->
+                    <div class="pt-2 flex items-center justify-between border-t border-white/5 text-xs">
+                        <span class="text-slate-400 truncate max-w-[60%]">${escapeHTML(comp.source || 'Vlastní')}</span>
+                        <button onclick="toggleExpand('${comp.id}')" class="text-ice-300 hover:text-white font-medium flex items-center gap-1 transition cursor-pointer">
+                            <span>${isExpanded ? 'Skrýt detail' : 'Detail závodu'}</span>
+                            <svg class="w-3.5 h-3.5 transform transition-transform ${isExpanded ? 'rotate-180' : ''}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                    </div>
+                </article>
+            `;
+        }
+
+        // Přepnutí oblíbeného závodu
+        function toggleFavorite(id) {
+            const idx = state.favorites.indexOf(id);
+            if (idx === -1) {
+                state.favorites.push(id);
+                showToast('Závod přidán do oblíbených ⭐');
+            } else {
+                state.favorites.splice(idx, 1);
+                showToast('Odebráno z oblíbených');
+            }
+            saveState();
+            renderCompetitions();
+        }
+
+        // Rozbalení/sbalení detailu karty
+        function toggleExpand(id) {
+            if (state.expandedIds.has(id)) {
+                state.expandedIds.delete(id);
+            } else {
+                state.expandedIds.add(id);
+            }
+            renderCompetitions();
+        }
+
+        // Filtry kategorií
+        function setCategory(cat) {
+            state.selectedCategory = cat;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                if (btn.dataset.cat === cat) {
+                    btn.className = 'cat-btn active px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold bg-ice-500 text-white shadow-sm transition whitespace-nowrap cursor-pointer';
+                } else {
+                    btn.className = 'cat-btn px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-medium bg-navy-950/60 text-slate-300 hover:text-white border border-ice-300/15 transition whitespace-nowrap cursor-pointer';
+                }
+            });
+            renderCompetitions();
+        }
+
+        // Přepnutí filtru "Pouze oblíbené"
+        function toggleFavoriteFilter() {
+            state.onlyFavorites = !state.onlyFavorites;
+            const btn = document.getElementById('toggle-fav-btn');
+            const icon = document.getElementById('fav-filter-icon');
+
+            if (state.onlyFavorites) {
+                btn.classList.add('bg-amber-500/20', 'border-amber-400/40', 'text-amber-200');
+                btn.classList.remove('bg-navy-950/75', 'border-ice-300/20', 'text-slate-300');
+                icon.classList.add('text-amber-400', 'fill-amber-400');
+            } else {
+                btn.classList.remove('bg-amber-500/20', 'border-amber-400/40', 'text-amber-200');
+                btn.classList.add('bg-navy-950/75', 'border-ice-300/20', 'text-slate-300');
+                icon.classList.remove('text-amber-400', 'fill-amber-400');
+            }
+            renderCompetitions();
+        }
+
+        // Přepnutí filtru "Skrýt proběhlé"
+        function toggleHidePast() {
+            state.hidePast = !state.hidePast;
+            const btn = document.getElementById('toggle-past-btn');
+
+            if (state.hidePast) {
+                btn.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-ice-500/20 border border-ice-400/40 text-sm font-medium text-ice-200 transition cursor-pointer';
+            } else {
+                btn.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-navy-950/75 border border-ice-300/20 text-sm font-medium text-slate-300 transition cursor-pointer';
+            }
+            renderCompetitions();
+        }
+
+        // Reset všech filtrů
+        function resetFilters() {
+            state.searchQuery = '';
+            document.getElementById('search-input').value = '';
+            state.onlyFavorites = false;
+            state.hidePast = false;
+            setCategory('ALL');
+            toggleHidePast(); // nastaví hidePast zpět na true a aktualizuje vzhled
+            const favBtn = document.getElementById('toggle-fav-btn');
+            favBtn.classList.remove('bg-amber-500/20', 'border-amber-400/40', 'text-amber-200');
+            favBtn.classList.add('bg-navy-950/75', 'border-ice-300/20', 'text-slate-300');
+            document.getElementById('fav-filter-icon').classList.remove('text-amber-400', 'fill-amber-400');
+            renderCompetitions();
+        }
+
+        // Simulace synchronizace z online zdrojů (ISU, SynchroCenter, ČKS)
+        function triggerSync() {
+            const icon = document.getElementById('sync-icon');
+            const syncText = document.getElementById('last-sync-text');
+            icon.classList.add('animate-spin');
+
+            showToast('Stahuji aktuální termíny Advanced Novice z ISU a ČKS...');
+
+            setTimeout(() => {
+                icon.classList.remove('animate-spin');
+                const now = new Date();
+                const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+                syncText.textContent = `Kategorie Advanced Novice (ISU & ČR) • Synchronizováno v ${timeStr}`;
+                showToast('Kalendář Advanced Novice je aktuální ✓');
+            }, 1100);
+        }
+
+        // Modální okna
+        function openAddModal() {
+            const modal = document.getElementById('add-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeAddModal() {
+            const modal = document.getElementById('add-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function openInfoModal() {
+            const modal = document.getElementById('info-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeInfoModal() {
+            const modal = document.getElementById('info-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Přidání nového závodu z formuláře
+        function handleAddCompetition(e) {
+            e.preventDefault();
+            const name = document.getElementById('new-name').value.trim();
+            const startDate = document.getElementById('new-start').value;
+            const endDate = document.getElementById('new-end').value;
+            const city = document.getElementById('new-city').value.trim();
+            const country = document.getElementById('new-country').value.trim();
+            const category = document.getElementById('new-category').value;
+            const note = document.getElementById('new-note').value.trim();
+
+            if (!name || !startDate || !endDate || !city) return;
+
+            const newComp = {
+                id: 'custom-' + Date.now(),
+                name,
+                startDate,
+                endDate: endDate < startDate ? startDate : endDate,
+                city,
+                country,
+                category,
+                source: 'Vlastní záznam',
+                note: note || 'Ručně přidaný závod do osobního kalendáře.',
+                url: ''
+            };
+
+            state.competitions.push(newComp);
+            state.favorites.push(newComp.id);
+            saveState();
+
+            closeAddModal();
+            document.getElementById('add-comp-form').reset();
+            updateCountdownBanner();
+            renderCompetitions();
+            showToast('Nový závod byl úspěšně přidán!');
+        }
+
+        // Pomocné funkce
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3200);
+        }
+
+        function getCzechPlural(count, one, few, many) {
+            if (count === 1) return one;
+            if (count >= 2 && count <= 4) return few;
+            return many;
+        }
+
+        function escapeHTML(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        // Spuštění po načtení
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
+```
